@@ -1,22 +1,22 @@
 #!/bin/sh
+
 case "$1" in
   start)
     echo "Loading LDD modules"
-    insmod /lib/modules/*/extra/scull.ko
-    insmod /lib/modules/*/extra/faulty.ko
+    modprobe scull
+    modprobe faulty
     modprobe hello
 
     echo "Creating scull device nodes"
-    scull_major=$(cat /proc/devices | grep scull | awk '{print $1}')
+    scull_major=$(grep scull /proc/devices | awk '{print $1}')
     [ -n "$scull_major" ] && {
-      mknod /dev/scull0 c $scull_major 0
-      mknod /dev/scull1 c $scull_major 1
-      mknod /dev/scull2 c $scull_major 2
-      mknod /dev/scull3 c $scull_major 3
+      for i in 0 1 2 3; do
+        mknod /dev/scull$i c $scull_major $i
+      done
     }
 
     echo "Creating faulty device node"
-    faulty_major=$(cat /proc/devices | grep faulty | awk '{print $1}')
+    faulty_major=$(grep faulty /proc/devices | awk '{print $1}')
     [ -n "$faulty_major" ] && mknod /dev/faulty c $faulty_major 0
     ;;
 
