@@ -1,0 +1,23 @@
+#!/bin/sh
+
+case "$1" in
+  start)
+    echo "Loading aesdchar module"
+    modprobe aesdchar
+
+    echo "Creating /dev/aesdchar device node"
+    aesdchar_major=$(grep aesdchar /proc/devices | awk '{print $1}')
+    [ -n "$aesdchar_major" ] && mknod /dev/aesdchar c $aesdchar_major 0
+    ;;
+  stop)
+    echo "Unloading aesdchar module"
+    rm -f /dev/aesdchar
+    rmmod aesdchar
+    ;;
+  *)
+    echo "Usage: $0 {start|stop}"
+    exit 1
+    ;;
+esac
+
+exit 0
